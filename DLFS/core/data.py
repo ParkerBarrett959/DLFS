@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Iterator, Tuple
 import numpy as np
 
+
 class Dataset(ABC):
     """Abstract base class for dataset containers"""
 

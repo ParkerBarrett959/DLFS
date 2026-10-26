@@ -4,10 +4,17 @@ from .data import DataLoader
 from .models import Model, Loss, Optimizer
 from .callbacks import Callback
 
+
 class Trainer:
     """Orchestrates model training pipeline and metrics"""
 
-    def __init__(self, model: Model, criterion: Loss, optimizer: Optimizer, callbacks: List[Callback] = None):
+    def __init__(
+        self,
+        model: Model,
+        criterion: Loss,
+        optimizer: Optimizer,
+        callbacks: List[Callback] = None,
+    ):
         self.model = model
         self.criterion = criterion
         self.optimizer = optimizer

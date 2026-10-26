@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import List
 import numpy as np
 
+
 class Model(ABC):
     """Abstract class defining the network architecture and forward pass"""
 
