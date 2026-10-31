@@ -18,8 +18,8 @@ class Dataset(ABC):
 class DataLoader:
     """Class for handling data operations like batching, shuffling, etc."""
 
-    def __init__(self, dataset: Dataset, batch_size: int, shuffle: bool = true):
-        sef.dataset = dataset
+    def __init__(self, dataset: Dataset, batch_size: int, shuffle: bool = True):
+        self.dataset = dataset
         self.batch_size = batch_size
         self.shuffle = shuffle
         self.indices = np.arange(len(self.dataset))

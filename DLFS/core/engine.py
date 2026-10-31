@@ -18,7 +18,7 @@ class Trainer:
         self.model = model
         self.criterion = criterion
         self.optimizer = optimizer
-        self.callback = callbacks or []
+        self.callbacks = callbacks or []
         self.current_epoch = 0
         self.current_step = 0
 
@@ -28,7 +28,7 @@ class Trainer:
 
     def fit(self, train_loader: DataLoader, epochs: int) -> None:
         """Run full execution pass over array batches"""
-        self._fire_callback("on_epoch_start")
+        self._fire_callback("on_train_start")
 
         for epoch in range(epochs):
             self.current_epoch = epoch
