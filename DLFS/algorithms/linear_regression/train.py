@@ -11,7 +11,7 @@ from .callbacks import TrainingLogger
 def train(
     X: np.ndarray,
     y: np.ndarray,
-    epoch: int = 100,
+    epochs: int = 100,
     batch_size: int = 16,
     learning_rate: float = 0.01,
 ):
