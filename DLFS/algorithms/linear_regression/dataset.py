@@ -11,7 +11,7 @@ class LinearRegressionDataset(Dataset):
         self.y = y
 
     def __len__(self) -> int:
-        pass
+        return self.X.shape[0]
 
     def __getitem__(self, idx: int) -> Tuple[np.ndarray, np.ndarray]:
         pass
