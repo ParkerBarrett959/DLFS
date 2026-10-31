@@ -1,6 +1,6 @@
 from typing import List
 import numpy as np
-from core import Trainer, DataLoader
+from DLFS.core import Trainer, DataLoader
 from .model import LinearRegression
 from .loss import MSELoss
 from .optimizer import SGD

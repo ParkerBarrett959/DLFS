@@ -1,6 +1,6 @@
 from typing import List
 import numpy as np
-from core import Optimizer
+from DLFS.core import Optimizer, Model
 
 
 class SGD(Optimizer):

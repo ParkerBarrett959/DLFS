@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 import numpy as np
-from core import Model
+from DLFS.core import Model
 
 
 class LinearRegression(Model):

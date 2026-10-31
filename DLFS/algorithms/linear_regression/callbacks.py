@@ -1,5 +1,5 @@
 from typing import Any, Dict
-from core import Callback, Trainer
+from DLFS.core import Callback, Trainer
 
 
 class TrainingLogger(Callback):

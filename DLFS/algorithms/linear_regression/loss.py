@@ -1,6 +1,6 @@
 from typing import List
 import numpy as np
-from core import Loss
+from DLFS.core import Loss
 
 
 class MSELoss(Loss):

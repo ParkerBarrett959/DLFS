@@ -1,6 +1,6 @@
 from typing import Tuple
 import numpy as np
-from core import Dataset
+from DLFS.core import Dataset
 
 
 class LinearRegressionDataset(Dataset):
