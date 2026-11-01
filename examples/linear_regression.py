@@ -20,17 +20,43 @@ def main():
     # Generate synthetic output data (home price)
     y = X @ w_true + b_true + noise
 
+    # Standardize features for stability
+    X_mean = X.mean(axis=0)
+    X_std = X.std(axis=0)
+    X_standardized = (X - X_mean) / X_std
+
+    # Standardize outputs for stability
+    y_mean = y.mean()
+    y_std = y.std()
+    y_standardized = (y - y_mean) / y_std
+
     # Train the model
-    model, trainer = train(X=X, y=y, epochs=100, batch_size=32, learning_rate=0.0001)
+    model, trainer = train(
+        X=X_standardized,
+        y=y_standardized,
+        epochs=100,
+        batch_size=32,
+        learning_rate=0.01,
+    )
 
     # Predictions
-    predictions = model(X)
+    predictions_standardized = model.forward(X_standardized)
+    predictions = predictions_standardized * y_std + y_mean
+
+    # Convert weights and biases from standardized to original units
+    weights = model.weights.data * y_std / X_std
+    bias = y_mean + y_std * model.bias.data[0] - np.sum(weights * X_mean)
+
+    # Evaluation
+    mse = np.mean((predictions - y) ** 2)
 
     # Results
     print("\nTraining results:")
-    print(f"Final loss: {trainer.history[-1]['loss']}:.4f")
-    print(f"Learned weights: {model.weights.data}")
-    print(f"Learned bias: {model.bias.data[0]}")
+    # print(f"Final loss: {trainer.history[-1]['loss']}:.4f")
+    print(f"True weights: {w_true}")
+    print(f"True bias: {b_true}")
+    print(f"Learned weights: {weights}")
+    print(f"Learned bias: {bias}")
 
 
 if __name__ == "__main__":
