@@ -10,7 +10,7 @@ class MSELoss(Loss):
         super().__init__()
 
     def compute(self, y_pred: np.ndarray, y_true: np.ndarray) -> float:
-        return np.mean(0.5 * (y_pred - y_true)**2)
+        return np.mean(0.5 * (y_pred - y_true) ** 2)
 
     def backward(self) -> List[np.ndarray]:
         """Computes gradients wrt model parameters"""

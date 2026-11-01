@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 import numpy as np
-from DLFS.core import Model
+from DLFS.core import Parameter, Model
 
 
 class LinearRegression(Model):
@@ -11,11 +11,11 @@ class LinearRegression(Model):
         super().__init__()
 
         # initialize models parameters
-        self.weights = np.zeros(input_dim)
-        self.bias = 0.0
+        self.weights = Parameter(np.zeros(input_dim))
+        self.bias = Parameter(np.zeros(1))
 
         # register params
-        self.parameters = []
+        self.parameters = [self.weights, self.bias]
 
     def forward(self, x: np.ndarray) -> np.ndarray:
         """Execute a forward pass of the model"""

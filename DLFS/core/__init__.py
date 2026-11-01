@@ -1,6 +1,15 @@
 from .data import Dataset, DataLoader
-from .models import Model, Loss, Optimizer
+from .models import Parameter, Model, Loss, Optimizer
 from .callbacks import Callback
 from .engine import Trainer
 
-__all__ = ["Dataset", "DataLoader", "Model", "Loss", "Optimizer", "Callback", "Trainer"]
+__all__ = [
+    "Dataset",
+    "DataLoader",
+    "Parameter",
+    "Model",
+    "Loss",
+    "Optimizer",
+    "Callback",
+    "Trainer",
+]

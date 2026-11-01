@@ -22,14 +22,14 @@ class DataLoader:
         self.dataset = dataset
         self.batch_size = batch_size
         self.shuffle = shuffle
-        self.indices = np.arange(len(self.dataset))
 
     def __iter__(self) -> Iterator[Tuple[np.ndarray, np.ndarray]]:
+        indices = np.arange(len(self.dataset))
         if self.shuffle:
-            np.random.shuffle(self.indices)
+            np.random.shuffle(indices)
 
-        for i in range(0, len(self.indices), self.batch_size):
-            batch_idx = self.indices[i : i + self.batch_size]
+        for i in range(0, len(indices), self.batch_size):
+            batch_idx = indices[i : i + self.batch_size]
 
             batch_x = np.array([self.dataset[j][0] for j in batch_idx])
             batch_y = np.array([self.dataset[j][1] for j in batch_idx])
