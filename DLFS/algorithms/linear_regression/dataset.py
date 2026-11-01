@@ -14,4 +14,4 @@ class LinearRegressionDataset(Dataset):
         return self.X.shape[0]
 
     def __getitem__(self, idx: int) -> Tuple[np.ndarray, np.ndarray]:
-        pass
+        return self.X[idx, :], self.y[idx]

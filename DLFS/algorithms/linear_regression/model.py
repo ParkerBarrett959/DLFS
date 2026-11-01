@@ -11,12 +11,12 @@ class LinearRegression(Model):
         super().__init__()
 
         # initialize models parameters
-        self.weights = None
-        self.bias = None
+        self.weights = np.zeros(input_dim)
+        self.bias = 0.0
 
         # register params
         self.parameters = []
 
     def forward(self, x: np.ndarray) -> np.ndarray:
         """Execute a forward pass of the model"""
-        pass
+        return x @ self.weights + self.bias
