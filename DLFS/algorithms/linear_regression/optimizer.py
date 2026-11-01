@@ -1,14 +1,15 @@
 from typing import List
 import numpy as np
-from DLFS.core import Optimizer, Model
+from DLFS.core import Optimizer, Parameter
 
 
 class SGD(Optimizer):
     """Stochastic gradient descent optimizer"""
 
-    def __init__(self, model: Model, lr: float = 0.01):
-        super().__init__(model, lr)
+    def __init__(self, parameters: List[Parameter], lr: float = 0.01):
+        super().__init__(parameters, lr)
 
-    def step(self, gradients: List[np.ndarray]) -> None:
+    def step(self) -> None:
         """Update internal model parameters"""
-        pass
+        for parameter in self.parameters:
+            parameter.data -= self.lr * parameter.grad

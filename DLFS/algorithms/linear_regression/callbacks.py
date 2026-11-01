@@ -6,7 +6,7 @@ class TrainingLogger(Callback):
     """Log training progress"""
 
     def on_train_start(self, trainer: Trainer) -> None:
-        pass
+        print("Starting training...")
 
     def on_epoch_start(self, trainer: Trainer) -> None:
         pass
@@ -18,7 +18,7 @@ class TrainingLogger(Callback):
         pass
 
     def on_epoch_end(self, trainer: Trainer, logs: Dict[str, Any]) -> None:
-        pass
+        print(f"Epoch {trainer.current_epoch + 1}: " f"Loss = {logs['loss']:.6f}")
 
     def on_train_end(self, trainer: Trainer) -> None:
-        pass
+        print("Training complete.")

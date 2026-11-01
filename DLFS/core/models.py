@@ -58,7 +58,7 @@ class Optimizer(ABC):
         self.lr = lr
 
     def zero_grad(self) -> None:
-        for parameters in self.parameters:
+        for parameter in self.parameters:
             parameter.zero_grad()
 
     @abstractmethod

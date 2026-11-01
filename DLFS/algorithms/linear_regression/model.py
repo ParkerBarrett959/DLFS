@@ -15,8 +15,16 @@ class LinearRegression(Model):
         self.bias = Parameter(np.zeros(1))
 
         # register params
-        self.parameters = [self.weights, self.bias]
+        self.parameters: List[Parameter] = [self.weights, self.bias]
+        self.input: np.ndarray | None = None
 
     def forward(self, x: np.ndarray) -> np.ndarray:
         """Execute a forward pass of the model"""
-        return x @ self.weights + self.bias
+        self.input = x
+        return x @ self.weights.data + self.bias.data
+
+    def backward(self, grad_output: np.ndarray) -> None:
+        """Calculate gradients wrt model parameters"""
+        self.weights.grad = self.input.T @ grad_output
+
+        self.bias.grad = np.array([np.sum(grad_output)])

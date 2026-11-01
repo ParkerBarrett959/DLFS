@@ -21,12 +21,16 @@ def main():
     y = X @ w_true + b_true + noise
 
     # Train the model
-    model, trainer = train(X=X, y=y, epochs=100, batch_size=16, learning_rate=0.01)
+    model, trainer = train(X=X, y=y, epochs=100, batch_size=32, learning_rate=0.0001)
 
-    # Check results
-    print("TODO...Print training results")
+    # Predictions
+    predictions = model(X)
 
-    # Do some prediction examples...
+    # Results
+    print("\nTraining results:")
+    print(f"Final loss: {trainer.history[-1]['loss']}:.4f")
+    print(f"Learned weights: {model.weights.data}")
+    print(f"Learned bias: {model.bias.data[0]}")
 
 
 if __name__ == "__main__":
