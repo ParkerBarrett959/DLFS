@@ -20,32 +20,42 @@ class Tensor:
     def zero_grad(self) -> None:
         self.grad.fill(0)
 
+    @staticmethod
+    def _unbroadcast(grad: np.ndarray, target_shape: tuple) -> np.ndarray:
+        """Sums out broadcasted dimensions so grad matches target_shape."""
+        if grad.shape == target_shape:
+            return grad
+            
+        ndims_added = grad.ndim - len(target_shape)
+        for _ in range(ndims_added):
+            grad = grad.sum(axis=0)
+
+        for i, dim in enumerate(target_shape):
+            if dim == 1 and grad.shape[i] > 1:
+                grad = grad.sum(axis=i, keepdims=True)
+
+        return grad.reshape(target_shape)
+
     def __add__(self, other: "Tensor") -> "Tensor":
         # create output tensor
         out = Tensor(self.data + other.data, (self, other))
 
         # set backward pass function
         def _backward():
-            if self.shape == out.shape:
-                self.grad += out.grad
-            else:
-                axes = tuple(
-                    i
-                    for i, (d1, d2) in enumerate(zip(self.shape, out.shape))
-                    if d1 != d2
-                )
-                self.grad += out.grad.sum(axis=axes, keepdims=True)
+            self.grad += self._unbroadcast(out.grad, self.shape)
+            other.grad += self._unbroadcast(out.grad, other.shape)
 
-            if other.shape == out.shape:
-                other.grad += out.grad
-            else:
-                diff = len(out.shape) - len(other.shape)
-                axes = list(range(diff)) + [
-                    i + diff
-                    for i, (d1, d2) in enumerate(zip(other.shape, out.shape[diff:]))
-                    if d1 != d2
-                ]
-                other.grad += out.grad.sum(axis=tuple(axes), keepdims=True)
+        out._backward = _backward
+        return out
+
+    def __sub__(self, other: "Tensor") -> "Tensor":
+        # create output tensor
+        out = Tensor(self.data - other.data, (self, other))
+
+        # set backward pass function
+        def _backward():
+            self.grad += self._unbroadcast(out.grad, self.shape)
+            other.grad += self._unbroadcast(-out.grad, other.shape)
 
         out._backward = _backward
         return out
@@ -55,7 +65,7 @@ class Tensor:
         if isinstance(other, (int, float, np.number)):
             out = Tensor(self.data * other, (self,))
             def _backward():
-                self.grad += out.grad * other
+                self.grad += self._unbroadcast(out.grad * other, self.shape)
             out._backward = _backward
             return out
             
@@ -66,27 +76,8 @@ class Tensor:
         def _backward():
             g1 = out.grad * other.data
             g2 = out.grad * self.data
-
-            if self.shape == out.shape:
-                self.grad += g1
-            else:
-                axes = tuple(
-                    i
-                    for i, (d1, d2) in enumerate(zip(self.shape, out.shape))
-                    if d1 != d2
-                )
-                self.grad += g1.sum(axis=axes, keepdims=True)
-
-            if other.shape == out.shape:
-                other.grad += g2
-            else:
-                diff = len(out.shape) - len(other.shape)
-                axes = list(range(diff)) + [
-                    i + diff
-                    for i, (d1, d2) in enumerate(zip(other.shape, out.shape[diff:]))
-                    if d1 != d2
-                ]
-                other.grad += g2.sum(axis=tuple(axes), keepdims=True)
+            self.grad += self._unbroadcast(g1, self.shape)
+            other.grad += self._unbroadcast(g2, other.shape)
 
         out._backward = _backward
         return out
@@ -98,39 +89,17 @@ class Tensor:
         if isinstance(other, (int, float, np.number)):
             out = Tensor(self.data / other, (self,))
             def _backward():
-                self.grad += out.grad / other
+                self.grad += self._unbroadcast(out.grad / other, self.shape)
             out._backward = _backward
             return out
-
-        if not isinstance(other, Tensor):
-            other = Tensor(np.array(other))
 
         out = Tensor(self.data / other.data, (self, other))
 
         def _backward():
             g1 = out.grad / other.data
             g2 = -out.grad * self.data / (other.data ** 2)
-
-            if self.shape == out.shape:
-                self.grad += g1
-            else:
-                axes = tuple(
-                    i
-                    for i, (d1, d2) in enumerate(zip(self.shape, out.shape))
-                    if d1 != d2
-                )
-                self.grad += g1.sum(axis=axes, keepdims=True)
-
-            if other.shape == out.shape:
-                other.grad += g2
-            else:
-                diff = len(out.shape) - len(other.shape)
-                axes = list(range(diff)) + [
-                    i + diff
-                    for i, (d1, d2) in enumerate(zip(other.shape, out.shape[diff:]))
-                    if d1 != d2
-                ]
-                other.grad += g2.sum(axis=tuple(axes), keepdims=True)
+            self.grad += self._unbroadcast(g1, self.shape)
+            other.grad += self._unbroadcast(g2, other.shape)
 
         out._backward = _backward
         return out
@@ -139,7 +108,7 @@ class Tensor:
         if isinstance(other, (int, float, np.number)):
             out = Tensor(other / self.data, (self,))
             def _backward():
-                self.grad += -out.grad * other / (self.data ** 2)
+                self.grad += self._unbroadcast(-out.grad * other / (self.data ** 2), self.shape)
             out._backward = _backward
             return out
         return Tensor(other) / self
@@ -157,36 +126,6 @@ class Tensor:
         def _backward():
             self.grad += out.grad @ other.data.T
             other.grad += self.data.T @ out.grad
-
-        out._backward = _backward
-        return out
-
-    def __sub__(self, other: "Tensor") -> "Tensor":
-        # create output tensor
-        out = Tensor(self.data - other.data, (self, other))
-
-        # set backward pass function
-        def _backward():
-            if self.shape == out.shape:
-                self.grad += out.grad
-            else:
-                axes = tuple(
-                    i
-                    for i, (d1, d2) in enumerate(zip(self.shape, out.shape))
-                    if d1 != d2
-                )
-                self.grad += out.grad.sum(axis=axes, keepdims=True)
-
-            if other.shape == out.shape:
-                other.grad -= out.grad
-            else:
-                diff = len(out.shape) - len(other.shape)
-                axes = list(range(diff)) + [
-                    i + diff
-                    for i, (d1, d2) in enumerate(zip(other.shape, out.shape[diff:]))
-                    if d1 != d2
-                ]
-                other.grad -= out.grad.sum(axis=tuple(axes), keepdims=True)
 
         out._backward = _backward
         return out
