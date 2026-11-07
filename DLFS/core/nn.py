@@ -93,5 +93,18 @@ class Layer:
 class MLP:
     """Representation of a multi-layer perceptron"""
 
-    def __init__(self, dim: int):
-        pass
+    def __init__(self, nin: int, nouts: list[int]):
+        """nouts is the output of each layer from input to output"""
+        sz = [nin] + nouts
+        self.layers = [Layer(sz[i], sz[i + 1]) for i in range(len(nouts))]
+
+    def forward(self, X) -> Tensor:
+        if X.data.shape[1] != self.layers[0].W.shape[0]:
+            raise ValueError(
+                f"Expected X to have {self.layers[0].W.shape[0]} columns, but had {X.data.shape[1]}"
+            )
+
+        for layer in self.layers:
+            X = layer.forward(X)
+
+        return X
