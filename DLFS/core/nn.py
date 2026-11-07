@@ -71,6 +71,27 @@ class Tensor:
         out._backward = _backward
         return out
 
+    def backward(self) -> None:
+        """Build topographic list of all nodes in computation graph"""
+        topo = []
+        visited = set()
+
+        def build_topo(v):
+            if v not in visited:
+                visited.add(v)
+                for child in v._prev:
+                    build_topo(child)
+                topo.append(v)
+
+        build_topo(self)
+
+        # set gradient of output node wrt loss to 1
+        self.grad = np.ones_like(self.data)
+
+        # traverse through topographic list applying backward ops
+        for node in reversed(topo):
+            nod._backward()
+
 
 class Layer:
     """Representation of a neural net layer. Each column of W represents weights of a single neuron and each column of B represents the bias of a single neuron. Currently the layer always applies a relu activation function."""
@@ -88,6 +109,9 @@ class Layer:
 
         # process layer
         return Tensor(X @ self.W + self.b).relu()
+
+    def parameters(self):
+        return [self.W, self.b]
 
 
 class MLP:
@@ -108,3 +132,6 @@ class MLP:
             X = layer.forward(X)
 
         return X
+
+    def parameters(self):
+        return [p for layer in self.layers for p in layer.parameters()]
