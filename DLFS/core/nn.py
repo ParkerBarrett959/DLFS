@@ -1,28 +1,27 @@
 import numpy as np
 
 
-class Value:
+class Tensor:
     """Abstraction for defining model parameters"""
 
-    def __init__(self, data: np.ndarray, _children=()):
+    def __init__(self, data: np.ndarray, _prev=()):
         """Input data is a matrix where rows correspond to elements of a batch and columns represent each feature in a single sample"""
-        self.shape = data.shape
         self.data = data
         self.grad = np.zeros_like(data)
 
         # autodiff graph variables
         self._backward = lambda: None
-        self._prev = set(_children)
+        self._prev = set(_prev)
 
     def zero_grad(self) -> None:
         self.grad.fill(0)
 
-    def __add__(self, other: Value) -> Value:
-        if self.shape != other.shape:
+    def __add__(self, other: Tensor) -> Tensor:
+        if self.data.shape != other.data.shape:
             raise ValueError(f"Expected {self.shape}, but got {other.shape}")
 
-        # create value
-        out = Value(self.data + other.data, (self, other))
+        # create output tensor
+        out = Tensor(self.data + other.data, (self, other))
 
         # set backward pass function
         def _backward():
@@ -32,12 +31,12 @@ class Value:
         out._backward = _backward
         return out
 
-    def __mul__(self, other: Value) -> Value:
-        if self.shape != other.shape:
+    def __mul__(self, other: Tensor) -> Tensor:
+        if self.data.shape != other.data.shape:
             raise ValueError(f"Expected {self.shape}, but got {other.shape}")
 
-        # create value
-        out = Value(self.data * other.data, (self, other))
+        # create output tensor
+        out = Tensor(self.data * other.data, (self, other))
 
         # set backward pass function
         def _backward():
@@ -47,17 +46,27 @@ class Value:
         out._backward = _backward
         return out
 
-    def __matmul__(self, other: Value) -> Value:
+    def __matmul__(self, other: Tensor) -> Tensor:
         if self.shape[1] != other.shape[0]:
             raise ValueError(f"Expected {self.shape}, but got {other.shape}")
 
-        # create value
-        out = Value(self.data @ other.data, (self, other))
+        # create output tensor
+        out = Tensor(self.data @ other.data, (self, other))
 
         # set backward pass function
         def _backward():
             self.grad += out.grad @ other.data.T
             other.grad += self.data.T @ out.grad
+
+        out._backward = _backward
+        return out
+
+    def relu(self) -> Tensor:
+        out = Tensor(np.maximum(0, self.data), (self,))
+
+        # set backward pass function
+        def _backward():
+            self.grad += out.grad * (self.data > 0)
 
         out._backward = _backward
         return out
