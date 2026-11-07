@@ -48,6 +48,15 @@ class Tensor:
         out._backward = _backward
         return out
 
+    def sum(self) -> "Tensor":
+        out = Tensor(np.array(np.sum(self.data)), (self,))
+
+        def _backward():
+            self.grad += np.ones_like(self.data) * out.grad
+
+        out._backward = _backward
+        return out
+
     def __sub__(self, other: "Tensor") -> "Tensor":
         # create output tensor
         out = Tensor(self.data - other.data, (self, other))
