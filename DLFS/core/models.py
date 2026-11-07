@@ -1,17 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 import numpy as np
-
-
-class Parameter:
-    """Abstraction for defining model parameters"""
-
-    def __init__(self, data: np.ndarray):
-        self.data = data
-        self.grad = np.zeros_like(data)
-
-    def zero_grad(self) -> None:
-        self.grad.fill(0)
+from .nn import Parameter
 
 
 class Model(ABC):
