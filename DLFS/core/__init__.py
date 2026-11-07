@@ -1,8 +1,9 @@
 from .data import Dataset, DataLoader
-from .nn import Tensor, Layer, MLP
+from .engine import Tensor
+from .nn import Layer, MLP
 from .models import Model, Loss, Optimizer
 from .callbacks import Callback
-from .engine import Trainer
+from .trainer import Trainer
 
 __all__ = [
     "Dataset",
