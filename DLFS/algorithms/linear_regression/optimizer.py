@@ -1,12 +1,12 @@
 from typing import List
 import numpy as np
-from DLFS.core import Optimizer, Parameter
+from DLFS.core import Optimizer, Tensor
 
 
 class SGD(Optimizer):
     """Stochastic gradient descent optimizer"""
 
-    def __init__(self, parameters: List[Parameter], lr: float = 0.01):
+    def __init__(self, parameters: List[Tensor], lr: float = 0.01):
         super().__init__(parameters, lr)
 
     def step(self) -> None:

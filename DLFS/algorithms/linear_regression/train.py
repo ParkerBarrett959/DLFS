@@ -1,6 +1,6 @@
 from typing import List
 import numpy as np
-from DLFS.core import Trainer, DataLoader
+from DLFS.core import Trainer, DataLoader, Tensor
 from .model import LinearRegression
 from .loss import MSELoss
 from .optimizer import SGD
@@ -9,8 +9,8 @@ from .callbacks import TrainingLogger
 
 
 def train(
-    X: np.ndarray,
-    y: np.ndarray,
+    X: Tensor,
+    y: Tensor,
     epochs: int = 100,
     batch_size: int = 16,
     learning_rate: float = 0.01,
@@ -25,7 +25,7 @@ def train(
     train_loader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=shuffle)
 
     # model
-    model = LinearRegression(input_dim=X.shape[1])
+    model = LinearRegression(input_dim=X.shape[1], [1])
 
     # loss
     criterion = MSELoss()
