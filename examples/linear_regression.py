@@ -1,4 +1,5 @@
 import numpy as np
+from DLFS.core import Tensor
 from DLFS.algorithms.linear_regression import train
 
 
@@ -10,7 +11,7 @@ def main():
     bedrooms = np.random.normal(loc=3.0, scale=1.0, size=sample_size)
     X = np.column_stack((square_footage, bedrooms))
 
-    # Gemerate true weights and bias
+    # Generate true weights and bias
     w_true = np.array([150.0, 20000.0])
     b_true = 30000.0
 
@@ -32,8 +33,8 @@ def main():
 
     # Train the model
     model, trainer = train(
-        X=X_standardized,
-        y=y_standardized,
+        X=Tensor(X_standardized),
+        y=Tensor(y_standardized),
         epochs=100,
         batch_size=32,
         learning_rate=0.01,
@@ -48,11 +49,10 @@ def main():
     bias = y_mean + y_std * model.bias.data[0] - np.sum(weights * X_mean)
 
     # Evaluation
-    mse = np.mean((predictions - y) ** 2)
+    mse = np.mean((predictions.data - y.data) ** 2)
 
     # Results
     print("\nTraining results:")
-    # print(f"Final loss: {trainer.history[-1]['loss']}:.4f")
     print(f"True weights: {w_true}")
     print(f"True bias: {b_true}")
     print(f"Learned weights: {weights}")

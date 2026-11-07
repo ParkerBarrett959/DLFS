@@ -25,13 +25,13 @@ def train(
     train_loader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=shuffle)
 
     # model
-    model = LinearRegression(input_dim=X.shape[1], [1])
+    model = LinearRegression(nin=X.shape[1], nouts=[1])
 
     # loss
     criterion = MSELoss()
 
     # optimizer
-    optimizer = SGD(parameters=model.get_parameters(), lr=learning_rate)
+    optimizer = SGD(parameters=model.parameters(), lr=learning_rate)
 
     # callbacks
     callbacks = [TrainingLogger()]

@@ -17,7 +17,8 @@ class Model(ABC):
 
     @abstractmethod
     def parameters(self) -> List[Tensor]:
-        return self.parameters
+        """Return a list of the models parameters"""
+        pass
 
 
 class Loss(ABC):

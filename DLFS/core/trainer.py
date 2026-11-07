@@ -45,10 +45,10 @@ class Trainer:
                 self.optimizer.zero_grad()
 
                 # forward pass
-                y_pred = self.model.forward(X)
+                Y_pred = self.model.forward(X)
 
                 # Compute scalar loss and gradient of output
-                loss_tensor = self.criterion.forward(y_pred, y_true)
+                loss_tensor = self.criterion.forward(Y_pred, Y_true)
 
                 # Backward pass to compute gradients
                 loss_tensor.backward()

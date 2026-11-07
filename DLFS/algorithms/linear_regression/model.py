@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 import numpy as np
-from DLFS.core import Tensor, Model
+from DLFS.core import Tensor, MLP, Model
 
 
 class LinearRegression(Model):
@@ -13,10 +13,9 @@ class LinearRegression(Model):
         # initialize an MLP
         self.mlp = MLP(nin, nouts)
 
-        # register params
-        self.parameters: List[Parameter] = [self.weights, self.bias]
-        self.input: np.ndarray | None = None
-
     def forward(self, X: Tensor) -> Tensor:
         """Execute a forward pass of the model"""
         return self.mlp.forward(X)
+
+    def parameters(self):
+        return self.mlp.parameters()

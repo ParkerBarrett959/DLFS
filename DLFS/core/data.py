@@ -34,7 +34,7 @@ class DataLoader:
 
             batch_x = np.array([self.dataset[j][0] for j in batch_idx])
             batch_y = np.array([self.dataset[j][1] for j in batch_idx])
-            yield iTensor(batch_x), Tensor(batch_y)
+            yield Tensor(batch_x), Tensor(batch_y)
 
     def __len__(self) -> int:
         return int(np.ceil(len(self.dataset) / self.batch_size))

@@ -100,9 +100,6 @@ class Tensor:
         out._backward = _backward
         return out
 
-    def __neg__(self):
-        return self * -1
-
     def __pow__(self, other) -> "Tensor":
         # create output tensor (other should be an int or float)
         out = Tensor(self.data**other, (self,))
