@@ -13,28 +13,44 @@ class Tensor:
         self._backward = lambda: None
         self._prev = set(_prev)
 
+    @property
+    def shape(self) -> tuple:
+        return self.data.shape
+
     def zero_grad(self) -> None:
         self.grad.fill(0)
 
-    def __add__(self, other: Tensor) -> Tensor:
-        if self.data.shape != other.data.shape:
-            raise ValueError(f"Expected {self.shape}, but got {other.shape}")
-
+    def __add__(self, other: "Tensor") -> "Tensor":
         # create output tensor
         out = Tensor(self.data + other.data, (self, other))
 
         # set backward pass function
         def _backward():
-            self.grad += out.grad
-            other.grad += out.grad
+            if self.shape == out.shape:
+                self.grad += out.grad
+            else:
+                axes = tuple(
+                    i
+                    for i, (d1, d2) in enumerate(zip(self.shape, out.shape))
+                    if d1 != d2
+                )
+                self.grad += out.grad.sum(axis=axes, keepdims=True)
+
+            if other.shape == out.shape:
+                other.grad += out.grad
+            else:
+                diff = len(out.shape) - len(other.shape)
+                axes = list(range(diff)) + [
+                    i + diff
+                    for i, (d1, d2) in enumerate(zip(other.shape, out.shape[diff:]))
+                    if d1 != d2
+                ]
+                other.grad += out.grad.sum(axis=tuple(axes), keepdims=True)
 
         out._backward = _backward
         return out
 
-    def __mul__(self, other: Tensor) -> Tensor:
-        if self.data.shape != other.data.shape:
-            raise ValueError(f"Expected {self.shape}, but got {other.shape}")
-
+    def __mul__(self, other: "Tensor") -> "Tensor":
         # create output tensor
         out = Tensor(self.data * other.data, (self, other))
 
@@ -46,9 +62,11 @@ class Tensor:
         out._backward = _backward
         return out
 
-    def __matmul__(self, other: Tensor) -> Tensor:
+    def __matmul__(self, other: "Tensor") -> "Tensor":
         if self.shape[1] != other.shape[0]:
-            raise ValueError(f"Expected {self.shape}, but got {other.shape}")
+            raise ValueError(
+                f"Expected inner dimensions to match, but got {self.shape} and {other.shape}"
+            )
 
         # create output tensor
         out = Tensor(self.data @ other.data, (self, other))
@@ -61,7 +79,7 @@ class Tensor:
         out._backward = _backward
         return out
 
-    def relu(self) -> Tensor:
+    def relu(self) -> "Tensor":
         out = Tensor(np.maximum(0, self.data), (self,))
 
         # set backward pass function
@@ -90,7 +108,7 @@ class Tensor:
 
         # traverse through topographic list applying backward ops
         for node in reversed(topo):
-            nod._backward()
+            node._backward()
 
 
 class Layer:
@@ -98,17 +116,11 @@ class Layer:
 
     def __init__(self, nin: int, nout: int):
         # random initial weights and zero bias
-        self.W = Tensor(np.random.randn(nin, nout) * 0.1)
+        self.W = Tensor(np.random.randn(nin, nout) * np.sqrt(2.0 / nin))
         self.b = Tensor(np.zeros((1, nout)))
 
     def forward(self, X: Tensor) -> Tensor:
-        if X.data.shape[1] != self.W.shape[0]:
-            raise ValueError(
-                f"Expected X to have {self.W.shape[0]} columns, but had {X.data.shape[1]}"
-            )
-
-        # process layer
-        return Tensor(X @ self.W + self.b).relu()
+        return (X @ self.W + self.b).relu()
 
     def parameters(self):
         return [self.W, self.b]
@@ -123,14 +135,8 @@ class MLP:
         self.layers = [Layer(sz[i], sz[i + 1]) for i in range(len(nouts))]
 
     def forward(self, X) -> Tensor:
-        if X.data.shape[1] != self.layers[0].W.shape[0]:
-            raise ValueError(
-                f"Expected X to have {self.layers[0].W.shape[0]} columns, but had {X.data.shape[1]}"
-            )
-
         for layer in self.layers:
             X = layer.forward(X)
-
         return X
 
     def parameters(self):
