@@ -45,8 +45,9 @@ def main():
     predictions = predictions_standardized * y_std + y_mean
 
     # Convert weights and biases from standardized to original units
-    weights = model.weights.data * y_std / X_std
-    bias = y_mean + y_std * model.bias.data[0] - np.sum(weights * X_mean)
+    layer = model.mlp.layers[0]
+    weights = layer.W.data.squeeze() * y_std / X_std
+    bias = y_mean + y_std * layer.b.data[0, 0] - np.sum(weights * X_mean)
 
     # Evaluation
     mse = np.mean((predictions.data - y.data) ** 2)
