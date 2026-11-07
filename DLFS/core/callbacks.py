@@ -2,7 +2,7 @@ from abc import ABC
 from typing import Any, Dict, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .engine import Trainer
+    from .trainer import Trainer
 
 
 class Callback(ABC):
