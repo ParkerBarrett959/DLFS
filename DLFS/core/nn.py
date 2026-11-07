@@ -56,8 +56,29 @@ class Tensor:
 
         # set backward pass function
         def _backward():
-            self.grad += out.grad * other.data
-            other.grad += out.grad * self.data
+            g1 = out.grad * other.data
+            g2 = out.grad * self.data
+
+            if self.shape == out.shape:
+                self.grad += g1
+            else:
+                axes = tuple(
+                    i
+                    for i, (d1, d2) in enumerate(zip(self.shape, out.shape))
+                    if d1 != d2
+                )
+                self.grad += g1.sum(axis=axes, keepdims=True)
+
+            if other.shape == out.shape:
+                other.grad += g2
+            else:
+                diff = len(out.shape) - len(other.shape)
+                axes = list(range(diff)) + [
+                    i + diff
+                    for i, (d1, d2) in enumerate(zip(other.shape, out.shape[diff:]))
+                    if d1 != d2
+                ]
+                other.grad += g2.sum(axis=tuple(axes), keepdims=True)
 
         out._backward = _backward
         return out
