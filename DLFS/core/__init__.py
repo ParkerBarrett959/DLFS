@@ -1,5 +1,5 @@
 from .data import Dataset, DataLoader
-from .nn import Parameter, Neuron, Layer, MLP
+from .nn import Tensor, Layer, MLP
 from .models import Model, Loss, Optimizer
 from .callbacks import Callback
 from .engine import Trainer
@@ -7,8 +7,7 @@ from .engine import Trainer
 __all__ = [
     "Dataset",
     "DataLoader",
-    "Parameter",
-    "Neuron",
+    "Tensor",
     "Layer",
     "MLP",
     "Model",

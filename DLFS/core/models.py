@@ -1,49 +1,37 @@
 from abc import ABC, abstractmethod
 from typing import List
 import numpy as np
-from .nn import Parameter
+from .nn import Tensor
 
 
 class Model(ABC):
     """Abstract class defining the network architecture and forward pass"""
 
-    def __init__(self):
-        self.parameters: List[Parameter] = []
-
     @abstractmethod
-    def forward(self, x: np.ndarray) -> np.ndarray:
+    def forward(self, X: Tensor) -> Tensor:
         """Execute a forward pass of the model"""
         pass
 
-    @abstractmethod
-    def backward(self, grad_output: np.ndarray) -> None:
-        """Execute a backward pass of the model"""
-        pass
-
-    def __call__(self, x: np.ndarray) -> np.ndarray:
+    def __call__(self, X: Tensor) -> Tensor:
         return self.forward(x)
 
-    def get_parameters(self) -> List[Parameter]:
+    @abstractmethod
+    def parameters(self) -> List[Tensor]:
         return self.parameters
 
 
 class Loss(ABC):
-    """Abstract class for defining loss functions and calculating gradients"""
+    """Abstract class for defining loss functions"""
 
     @abstractmethod
-    def forward(self, y_pred: np.ndarray, y_true: np.ndarray) -> float:
-        pass
-
-    @abstractmethod
-    def backward(self) -> List[np.ndarray]:
-        """Computes gradients of loss wrt inputs"""
-        pass
+    def forward(self, y_pred: Tensor, y_true: Tensor) -> Tensor:
+        return self.forward(y_pred, y_true)
 
 
 class Optimizer(ABC):
     """Updates model based on loss (gradients)"""
 
-    def __init__(self, parameters: List[Parameter], lr: float = 0.001):
+    def __init__(self, parameters: List[Tensor], lr: float = 0.001):
         self.parameters = parameters
         self.lr = lr
 
