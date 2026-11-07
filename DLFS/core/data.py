@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Iterator, Tuple
 import numpy as np
+from .engine import Tensor
 
 
 class Dataset(ABC):
@@ -23,7 +24,7 @@ class DataLoader:
         self.batch_size = batch_size
         self.shuffle = shuffle
 
-    def __iter__(self) -> Iterator[Tuple[np.ndarray, np.ndarray]]:
+    def __iter__(self) -> Iterator[Tuple[Tensor, Tensor]]:
         indices = np.arange(len(self.dataset))
         if self.shuffle:
             np.random.shuffle(indices)
@@ -33,7 +34,7 @@ class DataLoader:
 
             batch_x = np.array([self.dataset[j][0] for j in batch_idx])
             batch_y = np.array([self.dataset[j][1] for j in batch_idx])
-            yield batch_x, batch_y
+            yield iTensor(batch_x), Tensor(batch_y)
 
     def __len__(self) -> int:
         return int(np.ceil(len(self.dataset) / self.batch_size))
