@@ -1,8 +1,8 @@
 from typing import Any, Dict, List
-import numpy as np
 from .data import DataLoader
 from .models import Model, Loss, Optimizer
 from .callbacks import Callback
+from .engine import Tensor
 
 
 class Trainer:
@@ -38,28 +38,28 @@ class Trainer:
             epoch_loss = 0.0
             total_samples = 0
 
-            for x, y_true in train_loader:
+            for X, Y_true in train_loader:
                 self._fire_callback("on_batch_start")
 
                 # Zero gradients for batch
                 self.optimizer.zero_grad()
 
                 # forward pass
-                y_pred = self.model.forward(x)
+                y_pred = self.model.forward(X)
 
                 # Compute scalar loss and gradient of output
-                loss_val = self.criterion.forward(y_pred, y_true)
-                grad_output = self.criterion.backward()
+                loss_tensor = self.criterion.forward(y_pred, y_true)
 
-                # Backward pass of model to compute gradients
-                self.model.backward(grad_output)
+                # Backward pass to compute gradients
+                loss_tensor.backward()
 
                 # optimizer update
                 self.optimizer.step()
 
                 # book-keeping
-                epoch_loss += loss_val * len(x)
-                total_samples += len(x)
+                loss_val = float(np.mean(loss_tensor.data))
+                epoch_loss += loss_val * len(X)
+                total_samples += len(X)
 
                 # logging
                 batch_logs = {"loss": float(loss_val)}

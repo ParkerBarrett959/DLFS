@@ -1,6 +1,7 @@
 import numpy as np
 from .engine import Tensor
 
+
 class Layer:
     """Representation of a neural net layer. Each column of W represents weights of a single neuron and each column of B represents the bias of a single neuron. Currently the layer always applies a relu activation function."""
 
