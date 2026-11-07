@@ -51,6 +51,14 @@ class Tensor:
         return out
 
     def __mul__(self, other: "Tensor") -> "Tensor":
+        # handle tensor<->scalar multiplication
+        if isinstance(other, (int, float, np.number)):
+            out = Tensor(self.data * other, (self,))
+            def _backward():
+                self.grad += out.grad * other
+            out._backward = _backward
+            return out
+            
         # create output tensor
         out = Tensor(self.data * other.data, (self, other))
 
@@ -82,6 +90,59 @@ class Tensor:
 
         out._backward = _backward
         return out
+
+    def __rmul__(self, other) -> "Tensor":
+        return self * other
+
+    def __truediv__(self, other) -> "Tensor":
+        if isinstance(other, (int, float, np.number)):
+            out = Tensor(self.data / other, (self,))
+            def _backward():
+                self.grad += out.grad / other
+            out._backward = _backward
+            return out
+
+        if not isinstance(other, Tensor):
+            other = Tensor(np.array(other))
+
+        out = Tensor(self.data / other.data, (self, other))
+
+        def _backward():
+            g1 = out.grad / other.data
+            g2 = -out.grad * self.data / (other.data ** 2)
+
+            if self.shape == out.shape:
+                self.grad += g1
+            else:
+                axes = tuple(
+                    i
+                    for i, (d1, d2) in enumerate(zip(self.shape, out.shape))
+                    if d1 != d2
+                )
+                self.grad += g1.sum(axis=axes, keepdims=True)
+
+            if other.shape == out.shape:
+                other.grad += g2
+            else:
+                diff = len(out.shape) - len(other.shape)
+                axes = list(range(diff)) + [
+                    i + diff
+                    for i, (d1, d2) in enumerate(zip(other.shape, out.shape[diff:]))
+                    if d1 != d2
+                ]
+                other.grad += g2.sum(axis=tuple(axes), keepdims=True)
+
+        out._backward = _backward
+        return out
+
+    def __rtruediv__(self, other) -> "Tensor":
+        if isinstance(other, (int, float, np.number)):
+            out = Tensor(other / self.data, (self,))
+            def _backward():
+                self.grad += -out.grad * other / (self.data ** 2)
+            out._backward = _backward
+            return out
+        return Tensor(other) / self
 
     def __matmul__(self, other: "Tensor") -> "Tensor":
         if self.shape[1] != other.shape[0]:
