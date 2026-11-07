@@ -100,6 +100,36 @@ class Tensor:
         out._backward = _backward
         return out
 
+    def __sub__(self, other: "Tensor") -> "Tensor":
+        # create output tensor
+        out = Tensor(self.data - other.data, (self, other))
+
+        # set backward pass function
+        def _backward():
+            if self.shape == out.shape:
+                self.grad += out.grad
+            else:
+                axes = tuple(
+                    i
+                    for i, (d1, d2) in enumerate(zip(self.shape, out.shape))
+                    if d1 != d2
+                )
+                self.grad += out.grad.sum(axis=axes, keepdims=True)
+
+            if other.shape == out.shape:
+                other.grad -= out.grad
+            else:
+                diff = len(out.shape) - len(other.shape)
+                axes = list(range(diff)) + [
+                    i + diff
+                    for i, (d1, d2) in enumerate(zip(other.shape, out.shape[diff:]))
+                    if d1 != d2
+                ]
+                other.grad -= out.grad.sum(axis=tuple(axes), keepdims=True)
+
+        out._backward = _backward
+        return out
+    
     def __pow__(self, other) -> "Tensor":
         # create output tensor (other should be an int or float)
         out = Tensor(self.data**other, (self,))
