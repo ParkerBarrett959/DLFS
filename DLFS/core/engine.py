@@ -25,7 +25,7 @@ class Tensor:
         """Sums out broadcasted dimensions so grad matches target_shape."""
         if grad.shape == target_shape:
             return grad
-            
+
         ndims_added = grad.ndim - len(target_shape)
         for _ in range(ndims_added):
             grad = grad.sum(axis=0)
@@ -64,11 +64,13 @@ class Tensor:
         # handle tensor<->scalar multiplication
         if isinstance(other, (int, float, np.number)):
             out = Tensor(self.data * other, (self,))
+
             def _backward():
                 self.grad += self._unbroadcast(out.grad * other, self.shape)
+
             out._backward = _backward
             return out
-            
+
         # create output tensor
         out = Tensor(self.data * other.data, (self, other))
 
@@ -88,8 +90,10 @@ class Tensor:
     def __truediv__(self, other) -> "Tensor":
         if isinstance(other, (int, float, np.number)):
             out = Tensor(self.data / other, (self,))
+
             def _backward():
                 self.grad += self._unbroadcast(out.grad / other, self.shape)
+
             out._backward = _backward
             return out
 
@@ -97,7 +101,7 @@ class Tensor:
 
         def _backward():
             g1 = out.grad / other.data
-            g2 = -out.grad * self.data / (other.data ** 2)
+            g2 = -out.grad * self.data / (other.data**2)
             self.grad += self._unbroadcast(g1, self.shape)
             other.grad += self._unbroadcast(g2, other.shape)
 
@@ -107,8 +111,12 @@ class Tensor:
     def __rtruediv__(self, other) -> "Tensor":
         if isinstance(other, (int, float, np.number)):
             out = Tensor(other / self.data, (self,))
+
             def _backward():
-                self.grad += self._unbroadcast(-out.grad * other / (self.data ** 2), self.shape)
+                self.grad += self._unbroadcast(
+                    -out.grad * other / (self.data**2), self.shape
+                )
+
             out._backward = _backward
             return out
         return Tensor(other) / self
@@ -129,7 +137,7 @@ class Tensor:
 
         out._backward = _backward
         return out
-    
+
     def __pow__(self, other) -> "Tensor":
         # create output tensor (other should be an int or float)
         out = Tensor(self.data**other, (self,))

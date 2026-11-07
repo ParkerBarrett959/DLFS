@@ -1,4 +1,5 @@
 from typing import Any, Dict, List
+import numpy as np
 from .data import DataLoader
 from .models import Model, Loss, Optimizer
 from .callbacks import Callback
@@ -58,8 +59,8 @@ class Trainer:
 
                 # book-keeping
                 loss_val = float(np.mean(loss_tensor.data))
-                epoch_loss += loss_val * len(X)
-                total_samples += len(X)
+                epoch_loss += loss_val * X.shape[0]
+                total_samples += X.shape[0]
 
                 # logging
                 batch_logs = {"loss": float(loss_val)}
