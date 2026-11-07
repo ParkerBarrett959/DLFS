@@ -41,7 +41,7 @@ def main():
     )
 
     # Predictions
-    predictions_standardized = model.forward(X_standardized)
+    predictions_standardized = model.forward(Tensor(X_standardized))
     predictions = predictions_standardized * y_std + y_mean
 
     # Convert weights and biases from standardized to original units
