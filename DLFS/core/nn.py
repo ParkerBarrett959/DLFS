@@ -72,34 +72,22 @@ class Tensor:
         return out
 
 
-class Neuron:
-    """Representation of a neuron with weights, a bias and an activation function"""
-
-    def __init__(self, dim: int, activation: str = "relu"):
-        # random initial weights, uniform distribution on range [0, 1]
-        self.dim = dim
-        rng = np.random.default_rng()
-        self.weights = rng.random(dim)
-
-        # zero initial bias
-        self.bias = 0.0
-
-        # activation function
-        self.activation = activation if activation is not None else None
-
-    def forward(self, x: np.ndarray) -> np.ndarray:
-        if x.shape != (self.dim, 1):
-            raise ValueError(f"Expected shape {self.dim, 1}, but got {x.shape}")
-
-        return ().relu()
-        return
-
-
 class Layer:
-    """Representation of a layer of a deep neural network"""
+    """Representation of a neural net layer. Each column of W represents weights of a single neuron and each column of B represents the bias of a single neuron. Currently the layer always applies a relu activation function."""
 
-    def __init__(self, dim: int):
-        pass
+    def __init__(self, nin: int, nout: int):
+        # random initial weights and zero bias
+        self.W = Tensor(np.random.randn(nin, nout) * 0.1)
+        self.b = Tensor(np.zeros((1, nout)))
+
+    def forward(self, X: Tensor) -> Tensor:
+        if X.data.shape[1] != self.W.shape[0]:
+            raise ValueError(
+                f"Expected X to have {self.W.shape[0]} columns, but had {X.data.shape[1]}"
+            )
+
+        # process layer
+        return Tensor(X @ self.W + self.b).relu()
 
 
 class MLP:
