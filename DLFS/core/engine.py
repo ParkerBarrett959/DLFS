@@ -26,10 +26,16 @@ class Tensor:
         if grad.shape == target_shape:
             return grad
 
+        # Handle 0-D scalar gradients
+        if grad.ndim == 0:
+            return np.full(target_shape, grad.item(), dtype=np.float32)
+
+        # 1. Sum out extra leading dimensions if grad has more dims than target
         ndims_added = grad.ndim - len(target_shape)
         for _ in range(ndims_added):
             grad = grad.sum(axis=0)
 
+        # 2. Sum out dimensions where target_shape has size 1 but grad has size > 1
         for i, dim in enumerate(target_shape):
             if dim == 1 and grad.shape[i] > 1:
                 grad = grad.sum(axis=i, keepdims=True)
