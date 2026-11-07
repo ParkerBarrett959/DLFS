@@ -6,7 +6,7 @@ from DLFS.algorithms.linear_regression import train
 def main():
 
     # Generate synthetic feature data - this model takes house square footage and bedroom size and predicts price.
-    sample_size = 1000
+    sample_size = 10000
     square_footage = np.random.normal(loc=2000.0, scale=500.0, size=sample_size)
     bedrooms = np.random.normal(loc=3.0, scale=1.0, size=sample_size)
     X = np.column_stack((square_footage, bedrooms))
