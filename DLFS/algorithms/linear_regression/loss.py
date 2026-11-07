@@ -14,5 +14,5 @@ class MSELoss(Loss):
         self.y_pred = y_pred
         self.y_true = y_true
         diff = y_pred - y_true
-        squared = diff ** 2
+        squared = diff**2
         return np.mean(0.5 * squared.sum() * (1.0 / y_pred.data.size))

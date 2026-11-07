@@ -37,7 +37,7 @@ def main():
         y=Tensor(y_standardized),
         epochs=100,
         batch_size=32,
-        learning_rate=0.01,
+        learning_rate=0.001,
     )
 
     # Predictions

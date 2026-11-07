@@ -9,6 +9,7 @@ class Layer:
         # random initial weights and zero bias
         self.W = Tensor(np.random.randn(nin, nout) * np.sqrt(2.0 / nin))
         self.b = Tensor(np.zeros((1, nout)))
+        self.nonlin = nonlin
 
     def forward(self, X: Tensor) -> Tensor:
         out = X @ self.W + self.b
@@ -24,7 +25,10 @@ class MLP:
     def __init__(self, nin: int, nouts: list[int], nonlin: bool = True):
         """nouts is the output of each layer from input to output"""
         sz = [nin] + nouts
-        self.layers = [Layer(sz[i], sz[i + 1], nonlin=(i < len(nouts) - 1 or nonlin)) for i in range(len(nouts))]
+        self.layers = [
+            Layer(sz[i], sz[i + 1], nonlin=(i < len(nouts) - 1 or nonlin))
+            for i in range(len(nouts))
+        ]
 
     def forward(self, X) -> Tensor:
         for layer in self.layers:

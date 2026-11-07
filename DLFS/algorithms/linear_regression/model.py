@@ -10,8 +10,8 @@ class LinearRegression(Model):
     def __init__(self, nin: int, nouts: list[int]):
         super().__init__()
 
-        # initialize an MLP
-        self.mlp = MLP(nin, nouts)
+        # initialize a linear MLP
+        self.mlp = MLP(nin, nouts, nonlin=False)
 
     def forward(self, X: Tensor) -> Tensor:
         """Execute a forward pass of the model"""
