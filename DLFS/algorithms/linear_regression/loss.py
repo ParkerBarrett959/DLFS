@@ -13,4 +13,6 @@ class MSELoss(Loss):
     def forward(self, y_pred: Tensor, y_true: Tensor) -> Tensor:
         self.y_pred = y_pred
         self.y_true = y_true
-        return np.mean(0.5 * (y_pred - y_true) ** 2)
+        diff = y_pred - y_true
+        squared = diff ** 2
+        return np.mean(0.5 * squared.sum() * (1.0 / y_pred.data.size))
