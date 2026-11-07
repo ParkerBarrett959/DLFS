@@ -100,6 +100,21 @@ class Tensor:
         out._backward = _backward
         return out
 
+    def __neg__(self):
+        return self * -1
+
+    def __pow__(self, other) -> "Tensor":
+        # create output tensor (other should be an int or float)
+        out = Tensor(self.data**other, (self,))
+
+        # set backward pass function
+        def _backward():
+            self.grad += (other * self.data ** (other - 1)) * out.grad
+
+        out._backward = _backward
+
+        return out
+
     def relu(self) -> "Tensor":
         out = Tensor(np.maximum(0, self.data), (self,))
 
