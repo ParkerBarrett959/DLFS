@@ -86,13 +86,20 @@ Insert diagaram...
 Details of each step of the training epoch is provided below.
 
 ### Forward Pass
-Insert...
+The goal of the forward pass is to propagate a batch of input data through every layer of the model, resulting in an output prediction. Fortunately, the design of the multi-layer perceptron makes this pass very easy. The forward function simply iterates over each layer in the model, passing the outputs from one layer as the inputs of the next. It is critical to remember that every output is itself a tensor, containing a backward pass function and a set of parents which contributed. This step effectively builds the computation graph for each batch, from start to finish.
 
 ### Loss
-Insert...
+The loss function is a final computation performed on the outputs of the final layer. The loss also returns a tensor which will be used in the next step below to orchestrate the backwards pass. Common loss functions include mean-squared error or mean-absolute error - currently, these are implemented within the individual algorithms, however when the need for re-use arises, specific implementations will be moved into core.
 
 ### Backwards Pass
-Insert...
+The backwards pass is the key step for the backpropagation algorithm - it is critical to training the neural network. To understand the algorithm, you must first understand the chain rule from calculus.
+
+TODO...add write-up of backprop
+
+The pass begins by calling a backward function on the loss tensor. The backward function builds a topographic list of all nodes in the computation graph, from the end to the beginning in reverse order. It achieves this by recursively calling the build topographic list function on the parents of each node in the graph, which as you may recall, were stored in each tensor.
+
+After building the topographic list, the nodes are iterated over (this will also go from the end to the start of the graph based on the ordering the nodes were inserted). The backwards pass function is called for each node. The backward pass function is defined for each node in the topographic map and stored during the tensor's construction. 
+TODO... continue this
 
 ### Optimizer
 Insert...
