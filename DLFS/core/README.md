@@ -65,7 +65,11 @@ $$
 $$
 
 ## Multi-Layer Perceptron
-The multi-layer perceptron is 
+A multi-layer perceptron is just a series of layers, one after another. The first is called the input layer and the last is called the output layer. Each internal layer is called hidden. Each layer can have different numbers of neurons from the layers before and after it. An example of a multi-layer perceptron is shown below.
+
+Insert MLP figure...
+
+With the bulk of the complexity baked into the vectorized operations of the layer, the multi-layer perceptron implementation is very simple. The user must only specify the input dimension and the output dimension of each layer. At training and inference time, each layer is iterated over from start to finish, efficiently feeding the batched input data from the beginning of the network to the end.
 
 ## Data Loader
 Insert...
