@@ -77,7 +77,13 @@ The data loader is a simple class for shuffling and providing batches of data to
 When constructed in a trainer object (described below), the user specifies the batch size for the data loader and whether the data should be shuffled. During each epoch of training, the data loader randomly shuffles the dataset and creates batches of the requested size. The trainer iterates over each of those batches in succession, eventually completing a single epoch. The shuffling and iteration process is repeated for every epoch in the model training process.
 
 ## Trainer
-Insert...
+The trainer is the primary class tying the core library together. It holds a model (the neural network architecture), a loss criterion, an optimizer, and a set of injectable callbacks. The advantage of the trainer design is that the model, loss and optimizers are all abstract classes with a defined interface. This makes it simple to swap in and mix concrete implementations for each of these components, without having to rewrite everything from scratch every time.
+
+The trainer class provides a fit function, which as the name suggest, "fits" a model to the training data - this process is known as model training. The trainer iterates over the number of epochs provided by the user, a hyperparameter of the training process. In each epoch, the training data is shuffled and split into batches by the Data Loader. For each batch of data, the gradients stored in the optimizer are reset to 0, the batch is passed forward through the model, the loss criterion is calculated, the backwards pass occurs which computes the gradients of each weight and bias in the model with respect to the loss, and finally the optimizer steps the model parameters in the direction of the gradient. The following diagram should the flow of a single epoch of training.
+
+Insert diagaram...
+
+Details of each step of the training epoch is provided below.
 
 ### Forward Pass
 Insert...
