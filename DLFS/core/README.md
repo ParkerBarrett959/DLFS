@@ -72,7 +72,9 @@ Insert MLP figure...
 With the bulk of the complexity baked into the vectorized operations of the layer, the multi-layer perceptron implementation is very simple. The user must only specify the input dimension and the output dimension of each layer. At training and inference time, each layer is iterated over from start to finish, efficiently feeding the batched input data from the beginning of the network to the end.
 
 ## Data Loader
-Insert...
+The data loader is a simple class for shuffling and providing batches of data to the main training algorithm. It holds a dataset, which is an abstract class implemented by specific algorithms or classes of problems. It also provides a dunder method which makes the dataset iterable. 
+
+When constructed in a trainer object (described below), the user specifies the batch size for the data loader and whether the data should be shuffled. During each epoch of training, the data loader randomly shuffles the dataset and creates batches of the requested size. The trainer iterates over each of those batches in succession, eventually completing a single epoch. The shuffling and iteration process is repeated for every epoch in the model training process.
 
 ## Trainer
 Insert...
