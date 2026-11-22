@@ -34,25 +34,31 @@ $$
 $$
 
 ## Layer
-If a neuron is the atomic unit of the neural network, then a layer is just a stack of neurons. It takes inputs from the previous layer and passes it's outputs to the next.
+If a neuron is the atomic unit of the neural network, then a layer is just a stack of neurons. It takes inputs from the previous layer and passes its outputs to the next.
 
 Insert layer image...
 
-The figure above shows what is referred to as a "fully-connected layer" - this means every input coming from the previous layer is fed into every neuron in the current layer. Rather than looping over each neuron in the layer and calculating its activation, it is more convenient instead to leverage the speed of matrix multiplication. For this reason, the concept of an individual neuron, while helpful to understand, is not actually implemented in the core library. Only the layer, which parallelizes the individual neuron computations, is implemented. Each input (scalar output of the previous layer) is stacked horizontally, while the weights and biases from each neuron of the curret layer are also stacked horizontally.
+The figure above shows what is referred to as a "fully-connected layer" - this means every input coming from the previous layer is fed into every neuron in the current layer. Rather than looping over each neuron in the layer and calculating its activation, it is more convenient instead to leverage the speed of matrix multiplication. For this reason, the concept of an individual neuron, while helpful to understand, is not actually implemented in the core library. Only the layer, which parallelizes the individual neuron computations, is implemented. Each input (scalar output of the previous layer) is stacked horizontally, while the weights and biases from each neuron of the current layer are also stacked horizontally.
 
 $$
 \mathbf{y} = \begin{bmatrix}y_1 \\ y_2 \\ \cdots \\ y_{n_{out}} \end{bmatrix} = \begin{bmatrix}x_1 \\ x_2 \\ \cdots \\ x_{n_{in}} \end{bmatrix} \begin{bmatrix} \mathbf{w}_1 \\ \mathbf{w}_2 \\ \cdots \\ \mathbf{w}_{n_{out}} \end{bmatrix} + \begin{bmatrix} \mathbf{b}_1 \\ \mathbf{b}_2 \\ \cdots \\ \mathbf{b}_{n_{out}} \end{bmatrix}
 $$
 
-Since every input, $x$, is a scalar, and every weight vector, $\mathbf{w}$ is a columns vector, this effectively multiplies each input by the corresponding weight in each of the neurons in the next layer. The activation function can then be applied element-wise to the output, which returns the output of the given layer. Since this output is once again a set of scalars stacked horizontally, it can then be passed directly to the next layer.
+Since every input, $x$, is a scalar, and every weight vector, $\mathbf{w}$ is a column vector, this effectively multiplies each input by the corresponding weight in each of the neurons in the current layer. The activation function can then be applied element-wise to the output, which returns the output of the given layer.
+
+$$
+\mathbf{o} = \mathbf{f}(y)
+$$
+
+Since this output is once again a set of scalars stacked horizontally, it can then be passed directly to the next layer.
 
 One final performance optimization is the batching of layer operations. In our training loop, the goal is to pass a batch of data (with B samples) through each layer sequentially, rather than one at a time. This can be achieved by stacking each training sample (or output of the previous layer) vertically into one large matrix operation.
 
 $$
-\mathbf{Y} = \begin{bmatrix}\mathbf{y}_1 \\\\ \mathbf{y}_2 \\\\ \vdots \\\\ \mathbf{y}_{B} \end{bmatrix} = \begin{bmatrix}\mathbf{x}_1 \\\\ \mathbf{x}_2 \\\\ \vdots \\\\ \mathbf{x}_{B} \end{bmatrix} \begin{bmatrix} \mathbf{w}_1 \\ \mathbf{w}_2 \\ \cdots \\ \mathbf{w}_{n_{out}} \end{bmatrix} + \begin{bmatrix} \mathbf{b}_1 \\ \mathbf{b}_2 \\ \cdots \\ \mathbf{b}_{n_{out}} \end{bmatrix}
+\mathbf{Y} = \begin{bmatrix}\mathbf{y}^1 \\\\ \mathbf{y}^2 \\\\ \vdots \\\\ \mathbf{y}^{B} \end{bmatrix} = \begin{bmatrix}\mathbf{x}^1 \\\\ \mathbf{x}^2 \\\\ \vdots \\\\ \mathbf{x}^{B} \end{bmatrix} \begin{bmatrix} \mathbf{w}_1 \\ \mathbf{w}_2 \\ \cdots \\ \mathbf{w}_{n_{out}} \end{bmatrix} + \begin{bmatrix} \mathbf{b}_1 \\ \mathbf{b}_2 \\ \cdots \\ \mathbf{b}_{n_{out}} \end{bmatrix}
 $$
 
-Note that while the inputs are stacked, the weights and bias matrices remains the same (horizontally stacked). The bias matrix is broadcast vertically, applying the same bias to every row, corresponding to every sample. The activation function is then applied once again elementwise to the output.
+Note that while the inputs are stacked, the weights and bias remain the same (horizontally stacked). The bias row vector is broadcast vertically, applying the same bias to every row, corresponding to every sample. The activation function is then applied once again elementwise to the output.
 
 $$
 \mathbf{O} = \mathbf{f}(Y)
